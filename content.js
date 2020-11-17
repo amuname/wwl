@@ -1,4 +1,3 @@
-window.onload= function(){
     var CrmAPI;
 
     const config = {
@@ -16,67 +15,66 @@ window.onload= function(){
         var idForPost;
 
 
-    let observer = new MutationObserver(function(mutationsList, observer){
-        mutationsList.forEach((mutation)=>{
-            let telUrl = document.getElementsByClassName("webui-popover")[0];
+        let observer = new MutationObserver(function(mutationsList, observer){
+            mutationsList.forEach((mutation)=>{
+                let telUrl = document.getElementsByClassName("webui-popover")[0];
 
-            if (telUrl!== undefined){
-                let myElem= telUrl.children[0].children[0].children[0].children[0];// на некоторых telUrl не работает тк до них путь дальше, надо в следующем условии добавить условие о проверке на undefined
-                let el = document.getElementById("deleteElem");
-                let myElemChildren = myElem.children[0]
-                if(myElem!==undefined&&el===null/*&&el===undefined&&myElem!=el*/){
-                    //console.log(el)
-                    myElem.insertAdjacentHTML("afterend", "<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone="+tel+"&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>");
-                    document.getElementById("deleteElem").addEventListener("click",()=>{chrome.storage.sync.set({ContactID: idForPost});console.log(idForPost);})
-                    //console.log(myElem.parentElement.innerHTML); https://web.whatsapp.com/send?phone=79681217658&text&app_absent=0
-                } 
+                if (telUrl!== undefined){
+                    let myElem= telUrl.children[0].children[0].children[0].children[0];// на некоторых telUrl не работает тк до них путь дальше, надо в следующем условии добавить условие о проверке на undefined
+                    let el = document.getElementById("deleteElem");
+                    let myElemChildren = myElem.children[0]
+                    if(myElem!==undefined&&el===null/*&&el===undefined&&myElem!=el*/){
+                        //console.log(el)
+                        myElem.insertAdjacentHTML("afterend", "<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone="+tel+"&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>");
+                        document.getElementById("deleteElem").addEventListener("click",()=>{chrome.storage.sync.set({ContactID: idForPost});console.log(idForPost);})
+                        //console.log(myElem.parentElement.innerHTML); https://web.whatsapp.com/send?phone=79681217658&text&app_absent=0
+                    } 
+                }
+            })
+        });
+        let target = document.getElementsByTagName("body")[0];
+        let tel;
+        target.addEventListener("mouseover",function (e){
+            var phoneURL = e.target.dataset.source;
+            if(e.target.classList.value == "popover-trigger"||e.target.classList.value == "small popover-trigger"&&phoneURL!==undefined){
+                idForPost = e.path[2].getAttribute("data-id");
+                /*if (idForPost !== null){
+                    chrome.storage.sync.set({ContactID: idForPost}, function() {
+                        console.log('ContactID: ' + idForPost););
+                    //console.log(e.path[2]);
+                    // console.log(idForPost);
+                }else*/ if (idForPost == null|| idForPost=="") {
+                    idForPost = e.path[16].getAttribute("data-id");
+                    /*if (idForPost!==null) {
+                        chrome.storage.sync.set({ContactID: idForPost}, function() {
+                            console.log('ContactID: ' + idForPost););*/
+                        //console.log(e.path[16]);
+                        // console.log(idForPost);
+                    // }
+                }
+                
+                var triggerSymbol = e.target.dataset.source[38];// символ скобка - ( если домашний или число если мобильный
+                    if(triggerSymbol!=="("){
+                        console.log(e.target.dataset.source.length);
+                        let mobileURL = phoneURL;
+                        let mobile = mobileURL.substr(37,11);
+                        console.log(mobile+" mobile");
+                        tel = mobile;
+                    }
+                    else  {
+                        console.log(e.target.dataset.source.length);
+                        let HomePhoneURL = phoneURL;
+                        let HomePhone = HomePhoneURL[37]+HomePhoneURL.substr(39,3)+HomePhoneURL.substr(43,7);
+                        console.log(HomePhone+" HomePhone");
+                        tel = HomePhone;
+                    }
             }
         })
-    });
-    let target = document.getElementsByTagName("body")[0];
-    let tel;
-    target.addEventListener("mouseover",function (e){
-        var phoneURL = e.target.dataset.source;
-        if(e.target.classList.value == "popover-trigger"||e.target.classList.value == "small popover-trigger"&&phoneURL!==undefined){
-            idForPost = e.path[2].getAttribute("data-id");
-            /*if (idForPost !== null){
-                chrome.storage.sync.set({ContactID: idForPost}, function() {
-                    console.log('ContactID: ' + idForPost););
-                //console.log(e.path[2]);
-                // console.log(idForPost);
-            }else*/ if (idForPost == null|| idForPost=="") {
-                idForPost = e.path[16].getAttribute("data-id");
-                /*if (idForPost!==null) {
-                    chrome.storage.sync.set({ContactID: idForPost}, function() {
-                        console.log('ContactID: ' + idForPost););*/
-                    //console.log(e.path[16]);
-                    // console.log(idForPost);
-                // }
-            }
-            
-            var triggerSymbol = e.target.dataset.source[38];// символ скобка - ( если домашний или число если мобильный
-                if(triggerSymbol!=="("){
-                    console.log(e.target.dataset.source.length);
-                    let mobileURL = phoneURL;
-                    let mobile = mobileURL.substr(37,11);
-                    console.log(mobile+" mobile");
-                    tel = mobile;
-                }
-                else  {
-                    console.log(e.target.dataset.source.length);
-                    let HomePhoneURL = phoneURL;
-                    let HomePhone = HomePhoneURL[37]+HomePhoneURL.substr(39,3)+HomePhoneURL.substr(43,7);
-                    console.log(HomePhone+" HomePhone");
-                    tel = HomePhone;
-                }
-        }
-    })
-    
+        
 
 
 
-    observer.observe(target,config)
-
+        observer.observe(target,config)
 
 
 
@@ -88,8 +86,7 @@ window.onload= function(){
 
 // }
  
-
-else if (window.location.host == "web.whatsapp.com") {
+if (window.location.host == "web.whatsapp.com") {
     
     var targetwassup = document.getElementsByClassName("app-wrapper-web font-fix os-win")[0];
     console.log(targetwassup);
@@ -104,13 +101,14 @@ else if (window.location.host == "web.whatsapp.com") {
     }
 
 
-    let observer2 = new MutationObserver(function(mutationsList, observer){ 
+    // let observer2 = new MutationObserver(function(mutationsList, observer){ 
         /* переписать полностью, брать весь textContent  
         объекта role=region, записывая в переменную "allTextContent". После чего брать lastChild объекта role=region и 
         сравнивать его с последними символами стоки в "allTextContent", .slice(-text.length) от "allTextContent" последние символы равные 
         .length последнего сообщения */
 
-        mutationsList.forEach((mutation)=>{ 
+        /*mutationsList.forEach((mutation)=>*/
+        document.addEventListener("DOMSubtreeModified",()=>{ 
             console.log("why?");
             if (document.getElementById("pane-side")!== undefined&&document.getElementById("pane-side").style.display!=="none") {
                 document.getElementById("pane-side").style.display ="none";
@@ -162,10 +160,14 @@ else if (window.location.host == "web.whatsapp.com") {
          }
         })
 
-    });
+    }/*);*/
 
-    observer2.observe(targetwassup,config);
+    // observer2.observe(targetwassup,config);   
+    
+    // инструкции для обработки ошибок
+    // console.log(observer2); // передать объект исключения обработчику ошибок
+    
+    
 
-}
+// }
 
-}
