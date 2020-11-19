@@ -88,7 +88,7 @@
  
 if (window.location.host == "web.whatsapp.com") {
     
-    var targetwassup = document.getElementsByClassName("app-wrapper-web font-fix os-win")[0];
+    var targetwassup = document.getElementsByClassName("app-wrapper-web font-fix")[0];
     console.log(targetwassup);
     console.log(config);
     var msg;
