@@ -67,6 +67,9 @@ window.onload = function(){
 			        chrome.storage.sync.set({Pass: PVal}/*, function() {
 			          console.log('Pass: ' + PVal);
 			        }*/);
+			        winAuth.style.display = "none";
+					winMenu.style.display = "block";
+					submit.addEventListener("click",GetAPIKey);
 				} 
 				else if (LVal !== login.value && PVal !== password.value||LVal !== login.value||PVal !== password.value) {
 					WrongReg();
@@ -129,6 +132,18 @@ window.onload = function(){
 		chrome.storage.sync.remove("Pass",()=>{
 			console.log("Removed Pass")
 		})
+		chrome.storage.sync.get(["LogIn"], function(result) {
+	        // console.log('Value currently is ' + result.LogIn);
+	        LVal = result.LogIn;
+	        });
+	chrome.storage.sync.get(["Pass"], function(result) {
+	        // console.log('Value currently is ' + result.Pass);
+	        PVal = result.Pass;
+	        });
+	chrome.storage.sync.get(["APl"], function(result) {
+         	// console.log('Value currently is ' + result.APl);
+          	CrmAPI = result.APl;
+        });	
 	});
 
 	confirmCheck.addEventListener("click",regFunc);
