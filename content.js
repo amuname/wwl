@@ -1,14 +1,14 @@
-    var CrmAPI;
+   // var CrmAPI;
 
     const config = {
         childList: true,
         subtree: true
     };
 
-    chrome.storage.sync.get(["APl"], function(result) {
-          console.log('Value currently is ' + result.APl);
-          CrmAPI = result.APl;
-        });
+    // chrome.storage.sync.get(["APl"], function(result) {
+    //       console.log('Value currently is ' + result.APl);
+    //       CrmAPI = result.APl;
+    //     });
 
     if (window.location.host == "app.syncrm.ru") {
 
@@ -26,7 +26,7 @@
                     if(myElem!==undefined&&el===null/*&&el===undefined&&myElem!=el*/){
                         //console.log(el)
                         myElem.insertAdjacentHTML("afterend", "<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone="+tel+"&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>");
-                        document.getElementById("deleteElem").addEventListener("click",()=>{chrome.storage.sync.set({ContactID: idForPost});console.log(idForPost);})
+                        //document.getElementById("deleteElem").addEventListener("click",()=>{chrome.storage.sync.set({ContactID: idForPost});console.log(idForPost);})
                         //console.log(myElem.parentElement.innerHTML); https://web.whatsapp.com/send?phone=79681217658&text&app_absent=0
                     } 
                 }
@@ -37,21 +37,21 @@
         target.addEventListener("mouseover",function (e){
             var phoneURL = e.target.dataset.source;
             if(e.target.classList.value == "popover-trigger"||e.target.classList.value == "small popover-trigger"&&phoneURL!==undefined){
-                idForPost = e.path[2].getAttribute("data-id");
+                //idForPost = e.path[2].getAttribute("data-id");
                 /*if (idForPost !== null){
                     chrome.storage.sync.set({ContactID: idForPost}, function() {
                         console.log('ContactID: ' + idForPost););
                     //console.log(e.path[2]);
                     // console.log(idForPost);
-                }else*/ if (idForPost == null|| idForPost=="") {
+                }else if (idForPost == null|| idForPost=="") {
                     idForPost = e.path[16].getAttribute("data-id");
-                    /*if (idForPost!==null) {
+                    if (idForPost!==null) {
                         chrome.storage.sync.set({ContactID: idForPost}, function() {
                             console.log('ContactID: ' + idForPost););*/
                         //console.log(e.path[16]);
                         // console.log(idForPost);
                     // }
-                }
+                //}
                 
                 var triggerSymbol = e.target.dataset.source[38];// символ скобка - ( если домашний или число если мобильный
                     if(triggerSymbol!=="("){
@@ -102,22 +102,13 @@ if (window.location.host == "web.whatsapp.com") {
 
 
     // let observer2 = new MutationObserver(function(mutationsList, observer){ 
-        /* переписать полностью, брать весь textContent  
-        объекта role=region, записывая в переменную "allTextContent". После чего брать lastChild объекта role=region и 
-        сравнивать его с последними символами стоки в "allTextContent", .slice(-text.length) от "allTextContent" последние символы равные 
-        .length последнего сообщения */
-
         /*mutationsList.forEach((mutation)=>*/
         document.addEventListener("DOMSubtreeModified",()=>{ 
-            console.log("why?");
-            if (document.getElementById("pane-side")!== undefined&&document.getElementById("pane-side").style.display!=="none") {
-                document.getElementById("pane-side").style.display ="none";
-            }
             if (targetwassup.lastChild.lastChild !==undefined) {
             if (document.querySelectorAll("div [role=region]")!==undefined) {
                 if (document.querySelectorAll("div [role=region]")[1]!==undefined) {
             var msgNode = document.querySelectorAll("div [role=region]")[1].lastChild;
-            if (msgNode.textContent !== msg ) {// вот здаесь запросить данные об ответственном
+            if (msgNode.textContent !== msg ) {
                 var msgText =  msgNode.textContent;
                 msg = msgText;
 
@@ -170,4 +161,3 @@ if (window.location.host == "web.whatsapp.com") {
     
 
 // }
-
