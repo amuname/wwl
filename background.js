@@ -3,7 +3,7 @@ senderNumber,
 CrmAPI,
 idForPost,
 url = "https://app.syncrm.ru/api/v1/contacts",
-filter = "?filter%5Bgeneral_phone%5D=%2B",
+filter = "?filter%5Bany_phone%5D=%2B",
 fulFilter,
 header1name = "Content-Type",
 header1val = "application/vnd.api+json",
@@ -23,7 +23,7 @@ function handleMessage(request, sender, sendResponse) {
 		Msg = request.slice(0,-11);
     	senderNumber = request.slice(-11);
         console.log(Msg);
-        console.log(senderNumber);
+        console.log(sender);
         chrome.storage.sync.get(["APl"], function(result) {
           	console.log('Value currently is ' + result.APl);
           	CrmAPI = result.APl;
@@ -46,7 +46,7 @@ function handleMessage(request, sender, sendResponse) {
 	        	header2val= "Bearer "+CrmAPI;
 	        	
 	        	// console.log(CrmAPI);
-	        		filterBool(argument);
+	        		filterBool();
 	        		
 	        	 // }
 			}
@@ -54,22 +54,39 @@ function handleMessage(request, sender, sendResponse) {
 
 }
 
-function filterBool(argument) {
+function filterBool() {
 	xhrFil.open("GET", url+fulFilter)
 	xhrFil.setRequestHeader(header1name,header1val);
 	xhrFil.setRequestHeader(header2name,header2val);
 	xhrFil.send();
 	xhrFil.onload = ()=> {
 		let r = JSON.parse(xhrFil.response);
-		if (r.data.length!==0) {}
+		/*if (r.data.length==0) {
+			chrome.runtime.sendMessage("NaN");
+		}*/
+		if (r.data.length==1) {
+			idForPost = r.data[0].id;
+			getInfoCrm();
+		}
+		if (r.data.length>1) {
+			for (var i =  r.data.length - 1; i >= 0; i--) {
+				let data =r.data[i];
+				if (data.attributes.description!==null&&idForPost!==data.id){
+					idForPost = data.id;
+					getInfoCrm();
+				} else if(idForPost!==data.id){
+					idForPost = data.id;
+					getInfoCrm();
+				}
+			}
+		}
 	}
-	getInfoCrm();
 }
 
 function getInfoCrm() {
-	chrome.storage.sync.get(["ContactID"], function(result) {
-    console.log('Value ID is ' + result.ContactID);
-    idForPost = result.ContactID;
+	// chrome.storage.sync.get(["ContactID"], function(result) {
+ //    console.log('Value ID is ' + result.ContactID);
+ //    idForPost = result.ContactID;
     	data = JSON.stringify({
 			"data": {
 			"type":"contacts",
@@ -117,10 +134,8 @@ function getInfoCrm() {
 			}
 
 		}
-		// for (var i=0; i< generalPhone.length; i++)
-		// console.log(generalPhone[i]);
 	}
-    });
+    // });
 
 
 }
