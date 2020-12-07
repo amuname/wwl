@@ -13,8 +13,8 @@ data,
 xhr = new XMLHttpRequest,
 xhrPatch =new XMLHttpRequest,
 xhrFil =new XMLHttpRequest;
-console.log(Msg);
-console.log(senderNumber);
+//console.log(Msg);
+//console.log(senderNumber);
 // 	console.log("wow")
 // chrome.runtime.sendMessage("hello");
 
@@ -22,10 +22,10 @@ console.log(senderNumber);
 function handleMessage(request, sender, sendResponse) {
 		Msg = request.slice(0,-11);
     	senderNumber = request.slice(-11);
-        console.log(Msg);
-        console.log(sender);
+        //console.log(Msg);
+        //console.log(sender);
         chrome.storage.sync.get(["APl"], function(result) {
-          	console.log('Value currently is ' + result.APl);
+          	//console.log('Value currently is ' + result.APl);
           	CrmAPI = result.APl;
             if (CrmAPI!==undefined) {
             	// if (idForPost ==undefined) {
@@ -69,13 +69,13 @@ function filterBool() {
 			getInfoCrm();
 		}
 		if (r.data.length>1) {
-			for (var i =  r.data.length - 1; i >= 0; i--) {
-				let data =r.data[i];
-				if (data.attributes.description!==null&&idForPost!==data.id){
-					idForPost = data.id;
+			for (let i =  r.data.length - 1; i >= 0; i--) {
+				let daTa =r.data[i];
+				if (daTa.attributes.description!==null&&idForPost!==daTa.id){
+					idForPost = daTa.id;
 					getInfoCrm();
-				} else if(idForPost!==data.id){
-					idForPost = data.id;
+				} else if(idForPost!==daTa.id){
+					idForPost = daTa.id;
 					getInfoCrm();
 				}
 			}
@@ -114,10 +114,10 @@ function getInfoCrm() {
 			xhrPatch.send(data);
 		}else {
 			
-			var oldMsg =description.slice(-Msg.length);
+			var oldMsg =Msg.slice(description.length);
 			//console.log(oldMsg);
 			if (oldMsg!==Msg) {
-				newMsg = description+" <p>"+Msg;
+				newMsg = Msg.slice(-description.length);
 				data = JSON.stringify({
 				  "data": {
 					  "type":"contacts",
