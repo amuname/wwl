@@ -88,50 +88,92 @@
  
 if (window.location.host == "web.whatsapp.com") {
     
-    var targetwassup = document.getElementsByClassName("app-wrapper-web font-fix")[0];
-    console.log(targetwassup);
-    console.log(config);
-    var msg;
+    var targetwassup;
+    //console.log(targetwassup);
+    //console.log(config);
+    var msg="";
     var senderNumber;
+    var msgNode;
     //var responsible;//ответственный сюда чтоб не запрашивать постоянно
-    var myMsg;
+    var myMsg="";
     function sendToBgMSG(clientMessage, clientNumber) {
         chrome.runtime.sendMessage(clientMessage+clientNumber);
-
+        myMsg="";
     }
 
+    function elemListEdit(){
+        for(let realMessageFromArr of msgNode){
+            if(realMessageFromArr.classList.contains("message-in")|| realMessageFromArr.classList.contains("message-out")){
+                // console.log(realMessageFromArr.textContent)
+                var msgSender = realMessageFromArr.classList.value;// rewor
+                var senderString = realMessageFromArr.getAttribute("data-id");
+                var senderBoolean = senderString.substr(0, 5)
+                       
+                if (msgSender.includes("message-in")) {
+                    myMsg = myMsg+" <p>" + "Клиент: " + realMessageFromArr.textContent.slice(0,-5)+"  "+realMessageFromArr.textContent.slice(-5);
+                } else{
+                    myMsg = myMsg +" <p>" + "Я: " + realMessageFromArr.textContent.slice(0,-5)+"  "+realMessageFromArr.textContent.slice(-5);
+                }
+            }
+        }
+        console.log(myMsg);
+        return myMsg;
+    }
+    function phNumber(){
+            if(document.querySelectorAll("div [role=region]")[1].lastChild!==undefined){
+                let lastMsg = document.querySelectorAll("div [role=region]")[1].lastChild
+                var senderString = lastMsg.getAttribute("data-id");
+                var senderBoolean = senderString.substr(0, 5)       
+                if (senderBoolean == "true_") {
+                    senderNumber =  senderString.substr(5, 11);                    
+                } else{
+                    senderNumber =  senderString.substr(6, 11);                    
+                }
+            }
+        return senderNumber;
+    }
 
     // let observer2 = new MutationObserver(function(mutationsList, observer){ 
+        /* переписать полностью, брать весь textContent  
+        объекта role=region, записывая в переменную "allTextContent". После чего брать lastChild объекта role=region и 
+        сравнивать его с последними символами стоки в "allTextContent", .slice(-text.length) от "allTextContent" последние символы равные 
+        .length последнего сообщения */
+
         /*mutationsList.forEach((mutation)=>*/
         document.addEventListener("DOMSubtreeModified",()=>{ 
+            targetwassup = document.getElementsByClassName("app-wrapper-web font-fix")[0];
             if (targetwassup.lastChild.lastChild !==undefined) {
             if (document.querySelectorAll("div [role=region]")!==undefined) {
                 if (document.querySelectorAll("div [role=region]")[1]!==undefined) {
-            var msgNode = document.querySelectorAll("div [role=region]")[1].lastChild;
-            if (msgNode.textContent !== msg ) {
-                var msgText =  msgNode.textContent;
-                msg = msgText;
+                    // var msgNode = document.querySelectorAll("div [role=region]")[1].lastChild;
+                    msgNode = document.querySelectorAll("div [role=region]")[1].childNodes;
+                    if (document.querySelectorAll("div [role=region]")[1].textContent !== msg ) {
+                        // var msgText =  msgNode.textContent;
+                        // ()=>{msgText.scrollIntoView({block: "center"});}
+                        // msg = msgText;
+                        msg = document.querySelectorAll("div [role=region]")[1].textContent;
+                        sendToBgMSG(elemListEdit(),phNumber())
 
-                        var msgSender = msgNode.classList.value;
-                        //console.log(msgSender);
-                        //console.log(msg);
-                        var senderString = msgNode.getAttribute("data-id");
-                        var senderBoolean = senderString.substr(0, 5)
-                        if (senderBoolean == "true_") {
-                            senderNumber = senderString.substr(5, 11);
-                        }else{
-                            senderNumber = senderString.substr(6, 11);
-                        }
-                        console.log(senderNumber);
+                        // var msgSender = msgNode.classList.value;
+                        // //console.log(msgSender);
+                        // //console.log(msg);
+                        // var senderString = msgNode.getAttribute("data-id");
+                        // var senderBoolean = senderString.substr(0, 5)
+                        // if (senderBoolean == "true_") {
+                        //     senderNumber = senderString.substr(5, 11);
+                        // }else{
+                        //     senderNumber = senderString.substr(6, 11);
+                        // }
+                        // //console.log(senderNumber);
                         
-                        if (msgSender.includes("message-in")==true) {//дописать на входящие и исходящие после получения ответственного, того что общается с клиентом
-                            myMsg = "Клиент: " + msg.slice(0,-5)+"  "+msg.slice(-5);
-                            sendToBgMSG(myMsg,senderNumber);
-                        } else{
-                            myMsg = "Я: " + msg.slice(0,-5)+"  "+msg.slice(-5);
-                            sendToBgMSG(myMsg,senderNumber);
-                        }
-                        console.log(myMsg)
+                        // if (msgSender.includes("message-in")==true) {//дописать на входящие и исходящие после получения ответственного, того что общается с клиентом
+                        //     myMsg = "Клиент: " + msg.slice(0,-5)+"  "+msg.slice(-5);
+                        //     sendToBgMSG(myMsg,senderNumber);
+                        // } else{
+                        //     myMsg = "Я: " + msg.slice(0,-5)+"  "+msg.slice(-5);
+                        //     sendToBgMSG(myMsg,senderNumber);
+                        // }
+                        //console.log(myMsg)
                     /*if (msgNode.querySelector("div [role=button]").firstChild!==null)//какое условие прописать чтоб работало и не пролетало после первого условия
                      console.log(msgNode.querySelector("div [role=button]").firstChild);
                     console.log(msgNode.querySelector("div [role=button]"));
@@ -157,7 +199,6 @@ if (window.location.host == "web.whatsapp.com") {
     
     // инструкции для обработки ошибок
     // console.log(observer2); // передать объект исключения обработчику ошибок
-    
     
 
 // }
