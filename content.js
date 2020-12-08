@@ -145,15 +145,17 @@ if (window.location.host == "web.whatsapp.com") {
             if (targetwassup.lastChild.lastChild !==undefined) {
             if (document.querySelectorAll("div [role=region]")!==undefined) {
                 if (document.querySelectorAll("div [role=region]")[1]!==undefined) {
-                    // var msgNode = document.querySelectorAll("div [role=region]")[1].lastChild;
+                    // var msgNodeLast = document.querySelectorAll("div [role=region]")[1].lastChild;
                     msgNode = document.querySelectorAll("div [role=region]")[1].childNodes;
-                    if (document.querySelectorAll("div [role=region]")[1].textContent !== msg ) {
+                    if (document.querySelectorAll("div [role=region]")[1].lastChild !== msg ) {
+                        console.log(msgNode.length);
                         // var msgText =  msgNode.textContent;
                         // ()=>{msgText.scrollIntoView({block: "center"});}
                         // msg = msgText;
-                        msg = document.querySelectorAll("div [role=region]")[1].textContent;
-                        sendToBgMSG(elemListEdit(),phNumber())
-
+                        // if (msgNode.length%2!==0) {
+                            msg = document.querySelectorAll("div [role=region]")[1].lastChild;
+                            sendToBgMSG(elemListEdit(),phNumber())
+                        // }    
                         // var msgSender = msgNode.classList.value;
                         // //console.log(msgSender);
                         // //console.log(msg);
@@ -199,6 +201,5 @@ if (window.location.host == "web.whatsapp.com") {
     
     // инструкции для обработки ошибок
     // console.log(observer2); // передать объект исключения обработчику ошибок
-    
 
 // }
