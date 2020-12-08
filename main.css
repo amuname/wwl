@@ -1,3 +1,6 @@
+*{
+  box-sizing: border-box;
+}
 html,
     body {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -5,7 +8,6 @@ html,
       margin: 0;
       padding: 0;
       width: 380px;
-      min-height: 180px;
       background-color: #DED9D0; 
       background-image: url("/theme.png");
     }
@@ -22,21 +24,24 @@ html,
     }
     input{
       outline: none;
-      box-sizing: border-box;
-      height: 1.3rem;
+      height: 2em;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       display: block;
       margin: 5px 0px 5px 0px;
- 
+    }
+    input[type=text], input[type=password]{
+      padding: 0 1em;
+    }
+    p{
+      margin-bottom: 0;
     }
     .modal-header {
       align-items: center; /*выравнивание элементов по центру*/
-      border-bottom: 5.5px solid #dadada; /*свойства нижней разделительной линии*/
-      height: 50px;
     }
     .logo {
       padding: 11px 16px 16px 16px; /*отступы со всех сторон*/
+      border-bottom: 3.5px solid #dadada; /*свойства нижней разделительной линии*/
     }
     .logo-icon {
       vertical-align: text-bottom; /*выравнивание по нижней части текста*/
@@ -47,7 +52,7 @@ html,
       font-size: 16px;
     }
     .menu-container{
-      margin: 0px 18px 18px 18px;
+      padding: 0px 18px 18px 18px;
     }
     .win-menu{
       display: none;
@@ -68,6 +73,7 @@ html,
     }
     .token-success{
        display: none;
+       height: 140px;
     }
     .success{
       text-shadow: white 4px 4px 5px, white -4px -4px 5px, white -4px 4px 5px, white 4px -4px 5px;
@@ -85,4 +91,5 @@ html,
       display: inline-block;
       float: right;
       padding-right: 8px; 
+      cursor: pointer;
     }
