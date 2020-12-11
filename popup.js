@@ -17,11 +17,11 @@ window.onload = function(){
 	var CrmAPI;
 
 	chrome.storage.sync.get(["LogIn"], function(result) {
-	        // console.log('Value currently is ' + result.LogIn);
+	         console.log('Value currently is ' + result.LogIn);
 	        LVal = result.LogIn;
 	        });
 	chrome.storage.sync.get(["Pass"], function(result) {
-	        // console.log('Value currently is ' + result.Pass);
+	         console.log('Value currently is ' + result.Pass);
 	        PVal = result.Pass;
 	        });
 	chrome.storage.sync.get(["APl"], function(result) {
@@ -55,7 +55,7 @@ window.onload = function(){
 	}
 
 	function regFunc() {	
-		if (login.value!=="" &&password.value!==""||login.value!==""||password.value!=="") {
+		if (login.value!=="" &&password.value!=="") {
 				
 				if (LVal == undefined && PVal == undefined) {
 					
@@ -133,11 +133,11 @@ window.onload = function(){
 			console.log("Removed Pass")
 		})
 		chrome.storage.sync.get(["LogIn"], function(result) {
-	        // console.log('Value currently is ' + result.LogIn);
+	         console.log('Value currently is ' + result.LogIn);
 	        LVal = result.LogIn;
 	        });
 	chrome.storage.sync.get(["Pass"], function(result) {
-	        // console.log('Value currently is ' + result.Pass);
+	         console.log('Value currently is ' + result.Pass);
 	        PVal = result.Pass;
 	        });
 	chrome.storage.sync.get(["APl"], function(result) {
