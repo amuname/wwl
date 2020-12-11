@@ -1,4 +1,4 @@
-   // var CrmAPI;
+  // var CrmAPI;
 
     const config = {
         childList: true,
@@ -10,7 +10,7 @@
     //       CrmAPI = result.APl;
     //     });
 
-    if (window.location.host == "app.syncrm.ru") {
+    if (window.location.href == "https://app.syncrm.ru/contacts") {
 
         var idForPost;
 
@@ -91,17 +91,25 @@ if (window.location.host == "web.whatsapp.com") {
     var targetwassup;
     //console.log(targetwassup);
     //console.log(config);
+    var msgL;
     var msg="";
     var senderNumber;
     var msgNode;
     //var responsible;//ответственный сюда чтоб не запрашивать постоянно
     var myMsg="";
     function sendToBgMSG(clientMessage, clientNumber) {
+        chrome.runtime.sendMessage(msgL);
+        console.log("msgL before send "+msgL);
+        msgl=null;
         chrome.runtime.sendMessage(clientMessage+clientNumber);
         myMsg="";
     }
 
     function elemListEdit(){
+        if (msg.classList.value.includes("message-in")) {
+            msgL= parseInt(msgL)+5;
+            console.log("msgL "+msgL);
+        }
         for(let realMessageFromArr of msgNode){
             if(realMessageFromArr.classList.contains("message-in")|| realMessageFromArr.classList.contains("message-out")){
                 // console.log(realMessageFromArr.textContent)
@@ -154,7 +162,11 @@ if (window.location.host == "web.whatsapp.com") {
                         // msg = msgText;
                         // if (msgNode.length%2!==0) {
                             msg = document.querySelectorAll("div [role=region]")[1].lastChild;
-                            sendToBgMSG(elemListEdit(),phNumber())
+                            if (msg.textContent!==null) {    
+                                msgL = msg.textContent.length
+                                console.log(msgL);
+                                sendToBgMSG(elemListEdit(),phNumber())
+                            }
                         // }    
                         // var msgSender = msgNode.classList.value;
                         // //console.log(msgSender);
