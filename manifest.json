@@ -1,33 +1,25 @@
 {
 	"manifest_version": 2,
-	"name": "WhatsAppWeb Launcher β",
-	// "externally_connectable": {
-
- //    "ids": [
- //      "*"
- //    ],
- //    "matches": [
- //      "*://web.whatsapp.com/*",
- //      "*://app.syncrm.ru/*"
- //    ]
- //  	},
+	"name": "WhatsAppWeb Launcher",
 	"description": "Запускает WhatsAppWeb по клику на номер телефона",
-	"version": "1.0.0",
+	"version": "1.0.4",
 	"icons": {"128": "icon.jpg"},
 	"content_scripts": [
     {
-      "matches": [ "*://*/*" ],
+      "matches": [ 
+      "*://web.whatsapp.com/*",
+      "*://app.syncrm.ru/contacts*" ],
       "js": [ "content.js" ]
     }
   ],
 	"background": { 
 		"scripts" : ["background.js"], 
-	"persistent" : true 
+	"persistent" : false 
 	},
 	"browser_action": {
-		"default_title": "WhatsAppWeb Launcher β",
+		"default_title": "WhatsAppWeb Launcher",
 		"default_icon": "icon.jpg",
 		"default_popup": "popup.html"
 	},
-	"permissions": ["activeTab","storage"]
+	"permissions": ["storage"]
 }
