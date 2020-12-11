@@ -53,6 +53,7 @@ function handleMessage(request, sender, sendResponse) {
 	        	header2val= "Bearer "+CrmAPI;
 	        	
 	        	// console.log(CrmAPI);
+	        	console.log(lengthmsg);
 	        	filterBool(lengthmsg);
 	        	// }
 			}
@@ -64,6 +65,7 @@ function handleMessage(request, sender, sendResponse) {
 }
 
 function filterBool(msgLength) {
+	console.log(msgLength);
 	msgLength=parseInt(msgLength)+8;
 	console.log(msgLength);
 	xhrFil.open("GET", url+fulFilter)
@@ -98,7 +100,7 @@ function filterBool(msgLength) {
 }
 
 function getInfoCrm(realLength) {
-	lengthmsg=null;
+	lengthmsg="";
 	// chrome.storage.sync.get(["ContactID"], function(result) {
  //    console.log('Value ID is ' + result.ContactID);
  //    idForPost = result.ContactID;
@@ -127,43 +129,47 @@ function getInfoCrm(realLength) {
 			xhrPatch.setRequestHeader(header1name,header1val);
 			xhrPatch.setRequestHeader(header2name,header2val);
 			xhrPatch.send(data);
-		}else if (description.length<=Msg.length) {
-			let newMsg= description+Msg.slice(-realLength);
-			console.log(newMsg);
-			data = JSON.stringify({
-				  "data": {
-					  "type":"contacts",
-					  "id":idForPost,
-					  "attributes":{
-					    "description": newMsg
-				      }
-				   }
-				});
-			xhrPatch.open("PATCH",url+"/"+idForPost,false);
-			xhrPatch.setRequestHeader(header1name,header1val);
-			xhrPatch.setRequestHeader(header2name,header2val);
-			xhrPatch.send(data);
-		} else {
-			var oldMsg =Msg.slice(description.length);
-			//console.log(oldMsg);
-			if (oldMsg!==Msg) {
-				let newMsg = description+ Msg.slice(-description.length);
+		}else 
+
+		if (description.slice(-realLength)!==Msg.slice(-realLength)){
+			if (description.length<=Msg.length) {
+				let newMsg= description+Msg.slice(-realLength);
 				console.log(newMsg);
 				data = JSON.stringify({
-				  "data": {
-					  "type":"contacts",
-					  "id":idForPost,
-					  "attributes":{
-					    "description": newMsg
-				      }
-				   }
-				});
-			xhrPatch.open("PATCH",url+"/"+idForPost,false);
-			xhrPatch.setRequestHeader(header1name,header1val);
-			xhrPatch.setRequestHeader(header2name,header2val);
-			xhrPatch.send(data);
-			}
+					  "data": {
+						  "type":"contacts",
+						  "id":idForPost,
+						  "attributes":{
+						    "description": newMsg
+					      }
+					   }
+					});
+				xhrPatch.open("PATCH",url+"/"+idForPost,false);
+				xhrPatch.setRequestHeader(header1name,header1val);
+				xhrPatch.setRequestHeader(header2name,header2val);
+				xhrPatch.send(data);
+			} else {
+				var oldMsg =Msg.slice(description.length);
+				//console.log(oldMsg);
+				if (oldMsg!==Msg) {
+					let newMsg = description+ Msg.slice(-description.length);
+					console.log(newMsg);
+					data = JSON.stringify({
+					  "data": {
+						  "type":"contacts",
+						  "id":idForPost,
+						  "attributes":{
+						    "description": newMsg
+					      }
+					   }
+					});
+				xhrPatch.open("PATCH",url+"/"+idForPost,false);
+				xhrPatch.setRequestHeader(header1name,header1val);
+				xhrPatch.setRequestHeader(header2name,header2val);
+				xhrPatch.send(data);
+				}
 
+			}
 		}
 	// }
     // });
