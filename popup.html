@@ -14,35 +14,36 @@
 	<div class="modal-header">
 	    <h1 class="logo">
 	      <img class="logo-icon" src="/icon.jpg">WhatsAppWebLauncher
-	      <span class="version">(1.0.4)</span>
+	      <span class="version">(1.0.6)</span>
 	 	</h1>
 		    <div class="menu-container">
 		      	<div class="win-auth">
 		      		<h1>Авторизация</h1>
 		      		<span class="log">Login</span>
-		      		<input type="text" name="login">
+		      		<input type="text" name="login" tabindex="0">
 		      		<span class="log">Password</span>
-		      		<input type="password" name="password">
-		      		<input type="submit" name="savecheck">
+		      		<input type="password" name="password" tabindex="0">
+		      		<input type="submit" name="savecheck" tabindex="0">
 		      	</div>
 		      	<div class="win-menu">
 		      		<h1>
 		      			<span>Настройки</span>	
-						<span class="back">Назад</span>	
+						<span class="back" tabindex="0">Назад</span>	
 					</h1>	
-
 				<div class="win-prefs">
 					<span>Введите токен</span>
-					<div>				
-						<input type="text" name="token">
-						<input type="button" name="submit" value="Сохранить">						
+					<div class="f-cont">
+						<div>				
+							<input type="text" name="token" tabindex="0">
+							<input type="button" name="submit" value="Сохранить" tabindex="0">						
+						</div>
+						<button class="clear" tabindex="0">Забыть токен</button>
 					</div>
-					<button class="clear">Clear storage</button>
 				</div>
 				</div>
 				<div class="token-success">
 					<h1>
-						<span class="back">Назад</span>
+						<span class="back" tabindex="0">Назад</span>
 					</h1>
 					<span class="success">Успешно</span>
 				</div>
