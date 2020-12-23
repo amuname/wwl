@@ -15,11 +15,6 @@ description,
 xhr = new XMLHttpRequest,
 xhrPatch =new XMLHttpRequest,
 xhrFil =new XMLHttpRequest;
-//console.log(Msg);
-//console.log(senderNumber);
-// 	console.log("wow")
-// chrome.runtime.sendMessage("hello");
-
 
 function handleMessage(request, sender, sendResponse) {
 	if (lengthmsg=="") {
@@ -29,81 +24,49 @@ function handleMessage(request, sender, sendResponse) {
 			console.log("another one")
 			Msg = request.slice(0,-11);
 	    	senderNumber = request.slice(-11);
-	        //console.log(Msg);
-	        //console.log(sender);
 	        chrome.storage.sync.get(["APl"], function(result) {
 	          	//console.log('Value currently is ' + result.APl);
 	          	CrmAPI = result.APl;
 	            if (CrmAPI!==undefined) {
-            	// if (idForPost ==undefined) {
-     //      			chrome.storage.sync.get(["ContactID"], function(result) {
-     //      			console.log('Value currently is ' + result.ContactID);
-     //      			idForPost = result.ContactID;
-     //    			});
-
-					// header2val= "Bearer "+CrmAPI;
-     //    			getInfoCrm();
-     //      		} else {
-     //      			chrome.storage.sync.get(["ContactID"], function(result) {
-     //      			console.log('Value currently is ' + result.ContactID);
-     //      			idForPost = result.ContactID;
-     //    			});
 	         	fulFilter = filter+senderNumber;
-	         	//    console.log(fulFilter);
 	        	header2val= "Bearer "+CrmAPI;
-	        	
-	        	// console.log(CrmAPI);
-	        	console.log(lengthmsg);
-	        	filterBool(lengthmsg);
-	        	// }
-			}
+	        	filterBool(lengthmsg).then(toProm);
+	        }
         });
-
-
 	}
-		
 }
 
 function filterBool(msgLength) {
-	console.log(msgLength);
 	msgLength=parseInt(msgLength)+8;
 	console.log(msgLength);
-	xhrFil.open("GET", url+fulFilter)
-	xhrFil.setRequestHeader(header1name,header1val);
-	xhrFil.setRequestHeader(header2name,header2val);
-	xhrFil.send();
-	xhrFil.onload = ()=> {
-		let r = JSON.parse(xhrFil.response);
-		console.log(r.data.length)
-		// if (r.data.length==1) {
-		// 	description = r.data.attributes.description;
-		// 	idForPost = r.data[0].id;
-		// 	getInfoCrm();
-		// }
-		// if (r.data.length>1) {
-			for (let i =  r.data.length - 1; i >= 0; i--) {
-				let d =r.data[i];
-				console.log("GONA be id next");
-				description = d.attributes.description;
-				// if (d.attributes.description!==null||idForPost!==d.id||d.attributes.description!==""||idForPost!==""){
-					console.log(d.id);
-					idForPost = d.id;
-					getInfoCrm(msgLength);
-				// } else if(idForPost!==d.id){
-					// console.log("not data id");
-					// idForPost = d.id;
-					// getInfoCrm();
-				// }
-			}
-		// }
+	return new Promise(function(resolve,reject){
+		xhrFil.open("GET", url+fulFilter)
+		xhrFil.setRequestHeader(header1name,header1val);
+		xhrFil.setRequestHeader(header2name,header2val);
+		xhrFil.onload = ()=> {
+			let argToProm = JSON.parse(xhrFil.response)
+			resolve({argToProm,msgLength});
+		}
+		xhrFil.send();
+	})
+}
+
+function toProm(r){
+	console.log(r.argToProm);
+	console.log(r.msgLength);
+	console.log(r.argToProm.data.length);
+	for (let i =  r.argToProm.data.length - 1; i >= 0; i--) {
+		let d =r.argToProm.data[i];
+		console.log(`GONA Send to id ${d.id} next`);
+		description = d.attributes.description;
+		console.log(description);
+		idForPost = d.id;
+		getInfoCrm(r.msgLength);
 	}
 }
 
 function getInfoCrm(realLength) {
 	lengthmsg="";
-	// chrome.storage.sync.get(["ContactID"], function(result) {
- //    console.log('Value ID is ' + result.ContactID);
- //    idForPost = result.ContactID;
     	data = JSON.stringify({
 			"data": {
 			"type":"contacts",
@@ -113,73 +76,55 @@ function getInfoCrm(realLength) {
 			}
 		}
 	});
-	// xhr.open("GET",url+"/"+idForPost);
-	// xhr.setRequestHeader(header1name,header1val);
-	// xhr.setRequestHeader(header2name,header2val);
-	// xhr.send();
-	// xhr.onload = () =>{
-		// var description;
-		//console.log(xhr);
-		// var r = JSON.parse(xhr.response);
-		//console.log(r);
-		//console.log(r.data.attributes.description);
-		// description = r.data.attributes.description;
-		if (description==null||description=="") {
-			xhrPatch.open("PATCH",url+"/"+idForPost);
+
+		if (description===null&&typeof description===('object')||description=="") {
+			xhrPatch.open("PATCH",url+"/"+idForPost, false);
 			xhrPatch.setRequestHeader(header1name,header1val);
 			xhrPatch.setRequestHeader(header2name,header2val);
 			xhrPatch.send(data);
-		}else 
-
-		if (description.slice(-realLength)!==Msg.slice(-realLength)){
-			if (description.length<=Msg.length) {
-				let newMsg= description+Msg.slice(-realLength);
+		}else if (description.length<=Msg.length) {
+			let newMsg= description+Msg.slice(-realLength);
+			console.log(newMsg);
+			data = JSON.stringify({
+				  "data": {
+					  "type":"contacts",
+					  "id":idForPost,
+					  "attributes":{
+					    "description": newMsg
+				      }
+				   }
+				});
+			xhrPatch.open("PATCH",url+"/"+idForPost, false);
+			xhrPatch.setRequestHeader(header1name,header1val);
+			xhrPatch.setRequestHeader(header2name,header2val);
+			xhrPatch.onload = ()=>{
+				console.log(JSON.parse(xhrPatch.response));
+			}
+			xhrPatch.send(data);
+		} else {
+			var oldMsg =Msg.slice(description.length);
+			if (oldMsg!==Msg) {
+				let newMsg = description+ Msg.slice(-description.length);
 				console.log(newMsg);
 				data = JSON.stringify({
-					  "data": {
-						  "type":"contacts",
-						  "id":idForPost,
-						  "attributes":{
-						    "description": newMsg
-					      }
-					   }
-					});
-				xhrPatch.open("PATCH",url+"/"+idForPost,false);
-				xhrPatch.setRequestHeader(header1name,header1val);
-				xhrPatch.setRequestHeader(header2name,header2val);
-				xhrPatch.send(data);
-			} else {
-				var oldMsg =Msg.slice(description.length);
-				//console.log(oldMsg);
-				if (oldMsg!==Msg) {
-					let newMsg = description+ Msg.slice(-description.length);
-					console.log(newMsg);
-					data = JSON.stringify({
-					  "data": {
-						  "type":"contacts",
-						  "id":idForPost,
-						  "attributes":{
-						    "description": newMsg
-					      }
-					   }
-					});
-				xhrPatch.open("PATCH",url+"/"+idForPost,false);
-				xhrPatch.setRequestHeader(header1name,header1val);
-				xhrPatch.setRequestHeader(header2name,header2val);
-				xhrPatch.send(data);
-				}
-
+				  "data": {
+					  "type":"contacts",
+					  "id":idForPost,
+					  "attributes":{
+					    "description": newMsg
+				      }
+				   }
+				});
+			xhrPatch.open("PATCH",url+"/"+idForPost, false);
+			xhrPatch.setRequestHeader(header1name,header1val);
+			xhrPatch.setRequestHeader(header2name,header2val);
+			xhrPatch.send(data);
 			}
-		}
-	// }
-    // });
 
+		}
 
 }
 
-// function postToCrm(argument) {
-// 	// body...
-// }
 
 chrome.storage.sync.get(["APl"], function(result) {
           //console.log('Value currently is ' + result.APl);
