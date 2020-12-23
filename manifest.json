@@ -2,13 +2,13 @@
 	"manifest_version": 2,
 	"name": "WhatsAppWeb Launcher",
 	"description": "Запускает WhatsAppWeb по клику на номер телефона",
-	"version": "1.0.4",
+	"version": "1.0.6",
 	"icons": {"128": "icon.jpg"},
 	"content_scripts": [
     {
       "matches": [ 
       "*://web.whatsapp.com/*",
-      "*://app.syncrm.ru/contacts*" ],
+      "*://app.syncrm.ru/contacts/*" ],
       "js": [ "content.js" ]
     }
   ],
