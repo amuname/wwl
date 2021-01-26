@@ -50,9 +50,14 @@ const alertWindow = ()=>{//make alert Menu if token not defined
                         let numbs = document.querySelectorAll("#DataTables_Table_0 > tbody > tr.selected");
                         let arrNumbs = Array.from(numbs,(e)=>{ 
                             if (typeof e.querySelector('.phone > a')==='object'&&e.querySelector('.phone > a')!==null) {
-                                return e.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'');
+                                const num = e.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'')
+                                if (num.length>=11) {
+                                    return num;
+                                }else {
+                                    return false;                            
+                                }
                             } else {
-                                return false;
+                                return false;                            
                             }
                         }); 
                         console.log(arrNumbs);
@@ -81,7 +86,6 @@ const alertWindow = ()=>{//make alert Menu if token not defined
                             getToken();
                         }
                         // console.log(`3`);
-                        //TO DO rework to another all selectors or classes here, too buggy
                         const popOver = document.getElementsByClassName('phone-popover')[0];
                         if (popOver.children[0]) {
                             try{console.log(popOver.children[0].children[0]);
