@@ -1,6 +1,18 @@
-const getToken = ()=>{chrome.storage.sync.get(["APl"], function(result) {
-    console.log('Value currently is ' + result.APl);
-    if (!result.APl){//make alert Menu if token not defined
+let tokenBoolean = false;
+const getToken = ()=>{
+    chrome.storage.sync.get(["APl"], function(result) {
+        if (!result.APl){
+            tokenBoolean = false;
+            alertWindow();
+        }else{
+            tokenBoolean = true;
+        }
+    })
+};
+getToken();
+const alertWindow = ()=>{//make alert Menu if token not defined
+        console.log("sssssssuuukaa");
+    if (!document.getElementById('wwl-1.7.1')){
         const alert = document.createElement('div');
         alert.style.position = 'fixed';
         alert.style.bottom = '3em';
@@ -26,12 +38,11 @@ const getToken = ()=>{chrome.storage.sync.get(["APl"], function(result) {
         alert.addEventListener('click', function(e) {
             window.location.reload();
         });
-    }
-});
+    }   
 }
  //if token defined starting main(content) script
         if (window.location.host == "app.syncrm.ru"){
-            chrome.storage.sync.get(["clicked"],function(result) {
+            chrome.storage.sync.get(["clicked"],function(result) {//rewrite this module
                 if (!result.clicked) {//
                     const list = document.getElementsByClassName('ta-list')[0];
                     list.insertAdjacentHTML('beforeend',`<a href='#'><i class="material-icons mtrl-launch">launch</i>Начать рассылку</a>`);
@@ -45,7 +56,7 @@ const getToken = ()=>{chrome.storage.sync.get(["APl"], function(result) {
                             }
                         }); 
                         console.log(arrNumbs);
-                        chrome.storage.sync.set({clicked:true},()=>{
+                        chrome.storage.sync.set({clicked:false},()=>{//rewrite
                             chrome.storage.sync.set({mailingNumbs:arrNumbs},(result)=>{
                                 chrome.runtime.sendMessage();//??????????????
                             });
@@ -61,36 +72,41 @@ const getToken = ()=>{chrome.storage.sync.get(["APl"], function(result) {
             subtree: true
         };
         const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-            const tel = 123;
             //create mailing uri
             const  observerCallback = function(mutationsList, observer) {
                 mutationsList.forEach((mutation)=>{
                     try{
-                        if (!document.getElementById('wwl-1.7.1')) {
+                        // const tel = document.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'');
+                        if (!tokenBoolean) {
                             getToken();
                         }
-                        console.log(`3`);
+                        // console.log(`3`);
                         //TO DO rework to another all selectors or classes here, too buggy
-                        const telUrl = document.getElementsByClassName("dropdown-menu")[0];
-                        if (telUrl) {
-                            try{
-                                const myElem= telUrl.children[0].children[0].children[0].children[0];
+                        const popOver = document.getElementsByClassName('phone-popover')[0];
+                        if (popOver.children[0]) {
+                            try{console.log(popOver.children[0].children[0]);
+                                const myElem= popOver.getElementsByTagName('ul')[0]||popOver.getElementsByClassName('entries-is-empty')[0];
                                 const el = document.getElementById("deleteElem");
-                                const myElemChildren = myElem.children[0];
                                 if(myElem&&!el){
-                                    console.log(`4`);
-                                    myElem.insertAdjacentHTML('afterend', `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`);
+                                        // console.log({myElem});
+                                        const tel = myElem.children[0].children[0].getAttribute('data-copy-text').replace(/[^0-9]/gm,'');
+                                        // console.log(tel);
+                                        if (tel.length>=11) {
+                                            myElem.insertAdjacentHTML('beforeend', `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`);
+                                        }
                                 }
                             }catch(e){
-                                console.log(`second condition ${e}`);
+                                // console.log(`second condition ${e}`);
+                                return 0;
                             }
                         }
                     }catch(e){
-                        console.log(`first condition ${e}`);
+                        // console.log(`first condition ${e}`);
+                        return 0;
                     }
                 });
             };
-            const target = document.getElementById('page-wrapper');
+            const target = document.getElementsByTagName('body')[0];
             const observer = new MutationObserver(observerCallback);
             observer.observe(target,config);
 
