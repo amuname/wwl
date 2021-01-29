@@ -1,4 +1,5 @@
-let tokenBoolean = false;
+let tokenBoolean = false,
+mailingStatus = false;
 const getToken = ()=>{
     chrome.storage.sync.get(["APl"], function(result) {
         if (!result.APl){
@@ -9,7 +10,24 @@ const getToken = ()=>{
         }
     })
 };
+
 getToken();
+
+const contentMessage = (contntMsg)=> {
+    chrome.runtime.sendMessage(contntMsg,(e)=>{//норм должно работать, надо дождаться ответа и запустить если не false => removeListener еще решить почему появляется ошибка что неуспел получить ответ
+        console.log(e);
+        if (e) {
+            return ()=>{
+                mailingStatus = true;
+                whatsappUrl = `<li id='deleteElem'><span>Идет рассылка</span></li>`;
+                // document.getElementsByClassName('ta-list')[0].replaceChild(document.getElementById('w-w-l-mailing'),`<a id='w-w-l-mailing' href='#'><i class="material-icons mtrl-launch">launch</i>Идет рассылка</a>`);
+                removeListener();
+
+            }
+        }
+    });
+};
+
 const alertWindow = ()=>{//make alert Menu if token not defined
         console.log("sssssssuuukaa");
     if (!document.getElementById('wwl-1.7.1')){
@@ -41,80 +59,90 @@ const alertWindow = ()=>{//make alert Menu if token not defined
     }   
 }
  //if token defined starting main(content) script
-        if (window.location.host == "app.syncrm.ru"){
-            chrome.storage.sync.get(["clicked"],function(result) {//rewrite this module
-                if (!result.clicked) {//
-                    const list = document.getElementsByClassName('ta-list')[0];
-                    list.insertAdjacentHTML('beforeend',`<a href='#'><i class="material-icons mtrl-launch">launch</i>Начать рассылку</a>`);
-                    list.addEventListener('click', function(e) {
-                        let numbs = document.querySelectorAll("#DataTables_Table_0 > tbody > tr.selected");
-                        let arrNumbs = Array.from(numbs,(e)=>{ 
-                            if (typeof e.querySelector('.phone > a')==='object'&&e.querySelector('.phone > a')!==null) {
-                                const num = e.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'')
-                                if (num.length>=11) {
-                                    return num;
-                                }else {
-                                    return false;                            
-                                }
-                            } else {
-                                return false;                            
-                            }
-                        }); 
-                        console.log(arrNumbs);
-                        chrome.storage.sync.set({clicked:false},()=>{//rewrite
-                            chrome.storage.sync.set({mailingNumbs:arrNumbs},(result)=>{
-                                chrome.runtime.sendMessage();//??????????????
-                            });
-                        });
-                        
-                    });
+if (window.location.host == "app.syncrm.ru"){
+    let tel ="";
+    let whatsappUrl = `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`;
+    let mailingButton = `<a id='w-w-l-mailing'><i class="material-icons mtrl-launch">launch</i>Начать рассылку</a>`;
+    const eventListener = (e)=>{
+            let numbs = document.querySelectorAll("#DataTables_Table_0 > tbody > tr.selected");
+            let arrNumbs = Array.from(numbs,(e)=>{ 
+            if (typeof e.querySelector('.phone > a')==='object'&&e.querySelector('.phone > a')!==null) {
+                const num = e.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'');
+                if (num.length>=11) {
+                    return num;
+                }else {
+                    return false;                            
+                }
+            } else {
+                return false;                            
+            }
+        }); 
+        console.log(arrNumbs);
+        contentMessage(arrNumbs)// тут поставить в функцию eventListener котороая будет вызывать отключение eventListener 
+    };
+    const removeListener = ()=>{
+        document.getElementById('w-w-l-mailing').removeEventListener('click', eventListener)
+    };
+    const onMessageCallback = ()=>{
+        document.getElementById('w-w-l-mailing').addEventListener('click', eventListener);    
+    }
+    if (!mailingStatus) {//вынести в отдельную функцию и вызывать на onMessage на разрешение рассылки
+        const list = document.getElementsByClassName('ta-list')[0];
+        list.insertAdjacentHTML('beforeend', mailingButton);
+        onMessageCallback();
+    }
 
+    const config = {
+        attributes: true,
+        childList: true,
+        subtree: true
+    };
+    const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+        //create mailing uri
+        const  observerCallback = function(mutationsList, observer) {
+            mutationsList.forEach((mutation)=>{
+                try{
+                    // const tel = document.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'');
+                    if (!tokenBoolean) {
+                        getToken();
+                    }
+                    // console.log(`3`);
+                    const popOver = document.getElementsByClassName('phone-popover')[0];
+                    if (popOver.children[0]) {
+                        try{
+                            console.log(popOver.children[0].children[0]);
+                            const myElem = popOver.getElementsByTagName('ul')[0]||popOver.getElementsByClassName('entries-is-empty')[0];
+                            const el = document.getElementById("deleteElem");
+                            if(myElem&&!el){
+                                // console.log({myElem});
+                                tel = myElem.children[0].children[0].getAttribute('data-copy-text').replace(/[^0-9]/gm,'');
+                                // console.log(tel);
+                                if (tel.length>=11) {
+                                    myElem.insertAdjacentHTML('beforeend', whatsappUrl);
+                                }
+                            }
+                        }catch(e){
+                            // console.log(`second condition ${e}`);
+                            return 0;
+                        }
+                    }
+                }catch(e){
+                    // console.log(`first condition ${e}`);
+                    return 0;
                 }
             });
-        const config = {
-            attributes: true,
-            childList: true,
-            subtree: true
         };
-        const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-            //create mailing uri
-            const  observerCallback = function(mutationsList, observer) {
-                mutationsList.forEach((mutation)=>{
-                    try{
-                        // const tel = document.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'');
-                        if (!tokenBoolean) {
-                            getToken();
-                        }
-                        // console.log(`3`);
-                        const popOver = document.getElementsByClassName('phone-popover')[0];
-                        if (popOver.children[0]) {
-                            try{console.log(popOver.children[0].children[0]);
-                                const myElem= popOver.getElementsByTagName('ul')[0]||popOver.getElementsByClassName('entries-is-empty')[0];
-                                const el = document.getElementById("deleteElem");
-                                if(myElem&&!el){
-                                        // console.log({myElem});
-                                        const tel = myElem.children[0].children[0].getAttribute('data-copy-text').replace(/[^0-9]/gm,'');
-                                        // console.log(tel);
-                                        if (tel.length>=11) {
-                                            myElem.insertAdjacentHTML('beforeend', `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`);
-                                        }
-                                }
-                            }catch(e){
-                                // console.log(`second condition ${e}`);
-                                return 0;
-                            }
-                        }
-                    }catch(e){
-                        // console.log(`first condition ${e}`);
-                        return 0;
-                    }
-                });
-            };
-            const target = document.getElementsByTagName('body')[0];
-            const observer = new MutationObserver(observerCallback);
-            observer.observe(target,config);
+    const target = document.getElementsByTagName('body')[0];
+    const observer = new MutationObserver(observerCallback);
+    observer.observe(target,config);
+    chrome.runtime.onMessage.addListener(()=>{
+        if (true) {
+            onMessageCallback();
+        } 
+    });
 
-            } 
+} 
+
 if (window.location.host == "web.whatsapp.com") {
     
     var targetwassup,
