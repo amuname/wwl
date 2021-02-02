@@ -13,20 +13,6 @@ const getToken = ()=>{
 
 getToken();
 
-const contentMessage = (contntMsg)=> {
-    chrome.runtime.sendMessage(contntMsg,(e)=>{//норм должно работать, надо дождаться ответа и запустить если не false => removeListener еще решить почему появляется ошибка что неуспел получить ответ
-        console.log(e);
-        if (e) {
-            return ()=>{
-                mailingStatus = true;
-                whatsappUrl = `<li id='deleteElem'><span>Идет рассылка</span></li>`;
-                // document.getElementsByClassName('ta-list')[0].replaceChild(document.getElementById('w-w-l-mailing'),`<a id='w-w-l-mailing' href='#'><i class="material-icons mtrl-launch">launch</i>Идет рассылка</a>`);
-                removeListener();
-
-            }
-        }
-    });
-};
 
 const alertWindow = ()=>{//make alert Menu if token not defined
         console.log("sssssssuuukaa");
@@ -63,6 +49,12 @@ if (window.location.host == "app.syncrm.ru"){
     let tel ="";
     let whatsappUrl = `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`;
     let mailingButton = `<a id='w-w-l-mailing'><i class="material-icons mtrl-launch">launch</i>Начать рассылку</a>`;
+    const contentMessage = (contntMsg)=> {
+        chrome.runtime.sendMessage({'mailing':true,'numbs':contntMsg});
+        mailingStatus = true;
+        // document.getElementsByClassName('ta-list')[0].replaceChild(document.getElementById('w-w-l-mailing'),`<a id='w-w-l-mailing' href='#'><i class="material-icons mtrl-launch">launch</i>Идет рассылка</a>`);
+        removeListener();
+    };
     const eventListener = (e)=>{
             let numbs = document.querySelectorAll("#DataTables_Table_0 > tbody > tr.selected");
             let arrNumbs = Array.from(numbs,(e)=>{ 
@@ -81,9 +73,11 @@ if (window.location.host == "app.syncrm.ru"){
         contentMessage(arrNumbs)// тут поставить в функцию eventListener котороая будет вызывать отключение eventListener 
     };
     const removeListener = ()=>{
+        whatsappUrl = `<li id='deleteElem'><span>Идет рассылка</span></li>`;
         document.getElementById('w-w-l-mailing').removeEventListener('click', eventListener)
     };
     const onMessageCallback = ()=>{
+        whatsappUrl = `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`;
         document.getElementById('w-w-l-mailing').addEventListener('click', eventListener);    
     }
     if (!mailingStatus) {//вынести в отдельную функцию и вызывать на onMessage на разрешение рассылки
@@ -135,13 +129,24 @@ if (window.location.host == "app.syncrm.ru"){
     const target = document.getElementsByTagName('body')[0];
     const observer = new MutationObserver(observerCallback);
     observer.observe(target,config);
-    chrome.runtime.onMessage.addListener(()=>{
-        if (true) {
+    chrome.runtime.onMessage.addListener((e,sender,callback)=>{
+             console.log(e);
+        if (!e.mailing) {
+            console.log('obj');
             onMessageCallback();
-        } 
+        } else {
+            removeListener();
+        }
     });
 
 } 
+
+
+
+
+
+
+
 
 if (window.location.host == "web.whatsapp.com") {
     
