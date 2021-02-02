@@ -15,15 +15,38 @@ description,
 xhr = new XMLHttpRequest,
 xhrPatch =new XMLHttpRequest,
 xhrFil =new XMLHttpRequest;
+		
+let newMailingRequest;
 
 function handleMessage(request, sender, sendResponse) {
-	console.log(request);
+	console.log(request.mailing);
 	console.log(sender);
 	if (sender.origin =='https://app.syncrm.ru') {
 		console.log(sender.tab.id)
-		sendResponse = ()=>{
-
-			chrome.tabs.sendMessage(sender.tab.id,{a:true});
+		newMailingRequest = request.numbs;
+		console.log(newMailingRequest);
+		if (request.mailing) {
+			chrome.tabs.query({url:['*://app.syncrm.ru/*']},function(e){// отправляю каждой вкладке что рассылка начата
+	    		console.log(e);
+	    		e.forEach((tab)=>{
+	        		console.log(tab.id);
+	        		chrome.tabs.sendMessage(tab.id,{'mailing':true});
+	    		});
+			});
+		}
+		sendResponse({a:true});
+	}
+	if (sender.origin =='https://web.whatsapp.com') {
+		if (request.mailing) {
+		}
+		if (!request.mailing) {
+			chrome.tabs.query({url:['*://app.syncrm.ru/*']},function(e){// отправляю каждой вкладке что рассылка закончена
+	    		console.log(e);
+	    		e.forEach((tab)=>{
+	        		console.log(tab.id);
+	        		chrome.tabs.sendMessage(tab.id,{'mailing':false});
+	    		});
+			});
 		}
 	}
 // 	if (lengthmsg=="") {
