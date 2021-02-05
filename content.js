@@ -11,11 +11,18 @@ const getToken = ()=>{
     })
 };
 
+const config = {
+    attributes: true,
+    childList: true,
+    subtree: true
+};
+
+const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+
 getToken();
 
 
 const alertWindow = ()=>{//make alert Menu if token not defined
-        console.log("sssssssuuukaa");
     if (!document.getElementById('wwl-1.7.1')){
         const alert = document.createElement('div');
         alert.style.position = 'fixed';
@@ -86,12 +93,7 @@ if (window.location.host == "app.syncrm.ru"){
         onMessageCallback();
     }
 
-    const config = {
-        attributes: true,
-        childList: true,
-        subtree: true
-    };
-    const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+
         //create mailing uri
         const  observerCallback = function(mutationsList, observer) {
             mutationsList.forEach((mutation)=>{
@@ -149,123 +151,65 @@ if (window.location.host == "app.syncrm.ru"){
 
 
 if (window.location.host == "web.whatsapp.com") {
-    
-    var targetwassup,
-    msgL,
-    msg="",
-    senderNumber,
-    msgNode,
-    myMsg="";
 
-    function sendToBgMSG(clientMessage, clientNumber) {
-        chrome.runtime.sendMessage(msgL);
-        console.log("msgL before send "+msgL);
-        msgl=null;
-        chrome.runtime.sendMessage(clientMessage+clientNumber);
-        myMsg="";
-    }
 
-    function elemListEdit(){
-        if (msg.classList.value.includes("message-in")) {
-            msgL= parseInt(msgL)+5;
-            console.log("msgL "+msgL);
-        }
-        for(let realMessageFromArr of msgNode){
-            if(realMessageFromArr.classList.contains("message-in")|| realMessageFromArr.classList.contains("message-out")){
-                var msgSender = realMessageFromArr.classList.value;// rewor
-                var senderString = realMessageFromArr.getAttribute("data-id");
-                var senderBoolean = senderString.substr(0, 5)
-                       
-                if (msgSender.includes("message-in")) {
-                    myMsg = myMsg+" <p>" + "Клиент: " + realMessageFromArr.textContent.slice(0,-5)+"  "+realMessageFromArr.textContent.slice(-5);
-                } else{
-                    myMsg = myMsg +" <p>" + "Я: " + realMessageFromArr.textContent.slice(0,-5)+"  "+realMessageFromArr.textContent.slice(-5);
-                }
-            }
-        }
-        console.log(myMsg);
-        return myMsg;
-    }
-    function phNumber(){
-            if(document.querySelectorAll("div [role=region]")[1].lastChild!==undefined){
-                let lastMsg = document.querySelectorAll("div [role=region]")[1].lastChild
-                var senderString = lastMsg.getAttribute("data-id");
-                var senderBoolean = senderString.substr(0, 5)       
-                if (senderBoolean == "true_") {
-                    senderNumber =  senderString.substr(5, 11);                    
-                } else{
-                    senderNumber =  senderString.substr(6, 11);                    
-                }
-            }
-        return senderNumber;
-    }
 
-    // let observer2 = new MutationObserver(function(mutationsList, observer){ 
-        /*mutationsList.forEach((mutation)=>*/
-        document.addEventListener("DOMSubtreeModified",()=>{ 
-            targetwassup = document.getElementsByClassName("app-wrapper-web font-fix")[0];
-            if (targetwassup.lastChild.lastChild !==undefined) {
-            if (document.querySelectorAll("div [role=region]")!==undefined) {
-                if (document.querySelectorAll("div [role=region]")[1]!==undefined) {
-                    // var msgNodeLast = document.querySelectorAll("div [role=region]")[1].lastChild;
-                    msgNode = document.querySelectorAll("div [role=region]")[1].childNodes;
-                    if (document.querySelectorAll("div [role=region]")[1].lastChild !== msg ) {
-                        console.log(msgNode.length);
-                        // var msgText =  msgNode.textContent;
-                        // ()=>{msgText.scrollIntoView({block: "center"});}
-                        // msg = msgText;
-                        // if (msgNode.length%2!==0) {
-                            msg = document.querySelectorAll("div [role=region]")[1].lastChild;
-                            if (msg.textContent!==null) {    
-                                msgL = msg.textContent.length
-                                console.log(msgL);
-                                sendToBgMSG(elemListEdit(),phNumber());
-                            }
-                        // }    
-                        // var msgSender = msgNode.classList.value;
-                        // //console.log(msgSender);
-                        // //console.log(msg);
-                        // var senderString = msgNode.getAttribute("data-id");
-                        // var senderBoolean = senderString.substr(0, 5)
-                        // if (senderBoolean == "true_") {
-                        //     senderNumber = senderString.substr(5, 11);
-                        // }else{
-                        //     senderNumber = senderString.substr(6, 11);
-                        // }
-                        // //console.log(senderNumber);
-                        
-                        // if (msgSender.includes("message-in")==true) {//дописать на входящие и исходящие после получения ответственного, того что общается с клиентом
-                        //     myMsg = "Клиент: " + msg.slice(0,-5)+"  "+msg.slice(-5);
-                        //     sendToBgMSG(myMsg,senderNumber);
-                        // } else{
-                        //     myMsg = "Я: " + msg.slice(0,-5)+"  "+msg.slice(-5);
-                        //     sendToBgMSG(myMsg,senderNumber);
-                        // }
-                        //console.log(myMsg)
-                    /*if (msgNode.querySelector("div [role=button]").firstChild!==null)//какое условие прописать чтоб работало и не пролетало после первого условия
-                     console.log(msgNode.querySelector("div [role=button]").firstChild);
-                    console.log(msgNode.querySelector("div [role=button]"));
-                    if (msgNode.querySelector("div [role=button]")!== null) {
-                        if (msgNode.querySelector("div [role=button]").firstChild!== null) {
-                        var blob = msgNode.querySelector("div [role=button]").firstChild.lastChild.lastChild;
-                          if (blob !== imgMsg) {
-                             imgMsg = blob;
-                           console.log(blob);
-                             console.log(blob.getAttribute("src"));
-                      }
+    const  observerCallback = function(mutationsList, observer) {
+        mutationsList.forEach((mutation)=>{
+            try{
+                // console.log(mutation)
+                // console.log(mutation.addedNodes);
+                if (mutation.addedNodes.length>0) {
+                    // console.log('mutation');
+                    if (mutation.addedNodes[0].getAttribute('id')=='main') {
+                        console.warn('conected');
+                        const preLoadedMessages = document.querySelectorAll('#main div[role=region]>div');//получаю все предзагруженные сообщения 
+                        //(там еще 1 для подзагрузки, самое первое)
+                        //далее для последнего если оно от пользователя проставляю data- артрибут, если были сообщения на странице, то ставлю -1, 
+                        //если не было и пришло при нас, то 0 и от него начинаю считать
+                        if (preLoadedMessages[preLoadedMessages.length-1].className.includes('message-out')||preLoadedMessages[preLoadedMessages.length-1].className.includes('message-in')) {
+                            preLoadedMessages[preLoadedMessages.length-1].setAttribute('data-message-numb','-1');
+                            console.log(preLoadedMessages[preLoadedMessages.length-1]);
                         }
-                    }*/
-                   }               
+                        // console.log(mutation.addedNodes[0].attributes.id);//врубать дополнительно обсервер для толькол мейна
+                        dialogObserver.observe(document.getElementById('main'),config);
+                    }
+                    
+                }else if (mutation.removedNodes.length>0) {
+                    if (mutation.removedNodes[0].getAttribute('id')=='main') {
+                        // console.log(mutation);
+                        // console.log(mutation.addedNodes[0].attributes.id);//врубать дополнительно обсервер для толькол мейна
+                        // dialogObserver.disconnect();
+                        console.warn('diconected');
+                    }
+                    
                 }
-             }
-         }
-        })
+            }catch(e){
+                // console.log(e);
+                return 0;
+            }
+        });
+    }
+    const dialogObserverCallback =  function(mutationsList, observer) {
+        mutationsList.forEach((mutation)=>{
+            try{
+                if (mutation.addedNodes[0].className.includes('message-out')||mutation.addedNodes[0].className.includes('message-in')) {
 
-    }/*);*/
+                    // console.log(mutation);
+                    // console.log(mutation.addedNodes[0].dataset.id);
+                    // console.log(mutation.addedNodes[0].innerText);//uncomment!!! 
 
-    // observer2.observe(targetwassup,config);   
-    
-    // инструкции для обработки ошибок
-    // console.log(observer2); // передать объект исключения обработчику ошибок
+                }
+            }catch(e){
+                // console.log(e);
+                return 0;
+            }
 
-// }
+        });
+    }
+    const target = document.getElementsByTagName('body')[0];
+    const observer = new MutationObserver(observerCallback);
+    const dialogObserver = new MutationObserver(dialogObserverCallback);
+    observer.observe(target,config);
+
+}
