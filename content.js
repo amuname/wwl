@@ -54,7 +54,7 @@ const alertWindow = ()=>{//make alert Menu if token not defined
  //if token defined starting main(content) script
 if (window.location.host == "app.syncrm.ru"){
     let tel ="";
-    let whatsappUrl = `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`;
+    let whatsappUrl;
     let mailingButton = `<a id='w-w-l-mailing'><i class="material-icons mtrl-launch">launch</i>Начать рассылку</a>`;
     const contentMessage = (contntMsg)=> {
         chrome.runtime.sendMessage({'mailing':true,'numbs':contntMsg});
@@ -98,22 +98,22 @@ if (window.location.host == "app.syncrm.ru"){
         const  observerCallback = function(mutationsList, observer) {
             mutationsList.forEach((mutation)=>{
                 try{
-                    // const tel = document.querySelector('.phone > a').innerText.replace(/[^0-9]/gm,'');
                     if (!tokenBoolean) {
                         getToken();
                     }
                     // console.log(`3`);
                     const popOver = document.getElementsByClassName('phone-popover')[0];
                     if (popOver.children[0]) {
+                        
                         try{
-                            console.log(popOver.children[0].children[0]);
                             const myElem = popOver.getElementsByTagName('ul')[0]||popOver.getElementsByClassName('entries-is-empty')[0];
                             const el = document.getElementById("deleteElem");
                             if(myElem&&!el){
                                 // console.log({myElem});
-                                tel = myElem.children[0].children[0].getAttribute('data-copy-text').replace(/[^0-9]/gm,'');
-                                // console.log(tel);
+                                // const cond1 = document.getElementsByClassName('hover-active')[0].children[1].innerText.replace(/[^0-9]/gm,'');
+                                // const cond2 = myElem.children[0].children[0].getAttribute('data-copy-text').replace(/[^0-9]/gm,'');
                                 if (tel.length>=11) {
+                                    whatsappUrl = `<li id='deleteElem'><a href='https://web.whatsapp.com/send?phone=${tel}&text&app_absent=0' target='_blank'>Написать в WhatsApp</a></li>`
                                     myElem.insertAdjacentHTML('beforeend', whatsappUrl);
                                 }
                             }
@@ -128,6 +128,22 @@ if (window.location.host == "app.syncrm.ru"){
                 }
             });
         };
+    document.addEventListener('mouseover',(e)=>{
+        if (e.target.className.includes('popover-trigger')) {
+            if (e.target.dataset.mode='phone') {
+                if (e.target.className.includes('small')) {
+                    const str = e.target.innerText.replace(/[^0-9]/gm,'')
+                    tel = str.slice(-str.length-5,11);
+                }else{
+                    tel = e.target.innerText.replace(/[^0-9]/gm,'');
+                }
+                // console.log(tel);
+                // if (tel.length<11) {
+                //     console.log(e.target)
+                // }
+            }
+        }
+    });
     const target = document.getElementsByTagName('body')[0];
     const observer = new MutationObserver(observerCallback);
     observer.observe(target,config);
@@ -169,6 +185,7 @@ if (window.location.host == "web.whatsapp.com") {
                         //если не было и пришло при нас, то 0 и от него начинаю считать
                         if (preLoadedMessages[preLoadedMessages.length-1].className.includes('message-out')||preLoadedMessages[preLoadedMessages.length-1].className.includes('message-in')) {
                             preLoadedMessages[preLoadedMessages.length-1].setAttribute('data-message-numb','-1');
+                            preLoadedMessages[preLoadedMessages.length-1].classList.add('msg-selector');
                             console.log(preLoadedMessages[preLoadedMessages.length-1]);
                         }
                         // console.log(mutation.addedNodes[0].attributes.id);//врубать дополнительно обсервер для толькол мейна
@@ -180,7 +197,7 @@ if (window.location.host == "web.whatsapp.com") {
                         // console.log(mutation);
                         // console.log(mutation.addedNodes[0].attributes.id);//врубать дополнительно обсервер для толькол мейна
                         // dialogObserver.disconnect();
-                        console.warn('diconected');
+                        console.warn('disconnected');
                     }
                     
                 }
@@ -194,9 +211,9 @@ if (window.location.host == "web.whatsapp.com") {
         mutationsList.forEach((mutation)=>{
             try{
                 if (mutation.addedNodes[0].className.includes('message-out')||mutation.addedNodes[0].className.includes('message-in')) {
-
+                    
                     // console.log(mutation);
-                    // console.log(mutation.addedNodes[0].dataset.id);
+                    console.log(mutation.addedNodes[0].dataset.id);
                     // console.log(mutation.addedNodes[0].innerText);//uncomment!!! 
 
                 }
