@@ -168,7 +168,7 @@ if (window.location.host == "app.syncrm.ru"){
 
 if (window.location.host == "web.whatsapp.com") {
 
-
+    let msgArrToSend = [];
 
     const  observerCallback = function(mutationsList, observer) {
         mutationsList.forEach((mutation)=>{
@@ -178,14 +178,14 @@ if (window.location.host == "web.whatsapp.com") {
                 if (mutation.addedNodes.length>0) {
                     // console.log('mutation');
                     if (mutation.addedNodes[0].getAttribute('id')=='main') {
-                        console.warn('conected');
+                        console.warn('connected');
                         const preLoadedMessages = document.querySelectorAll('#main div[role=region]>div');//получаю все предзагруженные сообщения 
                         //(там еще 1 для подзагрузки, самое первое)
                         //далее для последнего если оно от пользователя проставляю data- артрибут, если были сообщения на странице, то ставлю -1, 
                         //если не было и пришло при нас, то 0 и от него начинаю считать
                         if (preLoadedMessages[preLoadedMessages.length-1].className.includes('message-out')||preLoadedMessages[preLoadedMessages.length-1].className.includes('message-in')) {
-                            preLoadedMessages[preLoadedMessages.length-1].setAttribute('data-message-numb','-1');
-                            preLoadedMessages[preLoadedMessages.length-1].classList.add('msg-selector');
+                            // preLoadedMessages[preLoadedMessages.length-1].setAttribute('data-message-numb','-1');
+                            // preLoadedMessages[preLoadedMessages.length-1].setAttribute('data-msg-selector','false');
                             console.log(preLoadedMessages[preLoadedMessages.length-1]);
                         }
                         // console.log(mutation.addedNodes[0].attributes.id);//врубать дополнительно обсервер для толькол мейна
@@ -211,15 +211,29 @@ if (window.location.host == "web.whatsapp.com") {
         mutationsList.forEach((mutation)=>{
             try{
                 if (mutation.addedNodes[0].className.includes('message-out')||mutation.addedNodes[0].className.includes('message-in')) {
-                    
+                    const msgList = document.querySelectorAll('#main div[role=region]>div');
+                    // console.log(msgList);
+                    if (!msgList[msgList.length-1].getAttribute('msgSelector')) {// перед пушем проверять не последнее сообщение а последнее в списке? 
+                        //или не только его
+                        // проверять на общее кол-во объектов+ текст в последнем и первом сообщении массива и если ??
+                        // если при одинаковой длинне массива первое и последнее сообщение одинаковы то ничего не делать
+                        // если при измененной длинне массива 
+                        msgList[msgList.length-1].setAttribute('data-msg-selector','true');
+                        // const myMsgArr = document.querySelectorAll('div[msg-selector=true]');
+                        const lastMsg = msgList[msgList.length-1].innerText;
+                        msgArrToSend.push(lastMsg);
+                        console.log(msgArrToSend);
+                    } else {
+                        console.log('whu not??((')
+                    }
                     // console.log(mutation);
-                    console.log(mutation.addedNodes[0].dataset.id);
+                    // console.log('dialogObserverCallback '+mutation.addedNodes[0].dataset.id);
                     // console.log(mutation.addedNodes[0].innerText);//uncomment!!! 
 
                 }
             }catch(e){
                 // console.log(e);
-                return 0;
+                // return 0;
             }
 
         });
