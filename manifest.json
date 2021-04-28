@@ -1,8 +1,8 @@
 {
 	"manifest_version": 2,
 	"name": "WhatsAppWeb Launcher",
-	"description": "Запускает WhatsAppWeb по клику на номер телефона",
-	"version": "1.0.6",
+	"description": "Запускает WhatsAppWeb по клику на номер телефона, сохраняет сообщения из активного диалога в SYNERGY CRM",
+	"version": "1.0.7",
 	"icons": {"128": "icon.jpg"},
 	"content_scripts": [
     {
