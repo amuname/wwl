@@ -168,9 +168,6 @@ if (window.location.host == "app.syncrm.ru"){
 
 if (window.location.host == "web.whatsapp.com") {
 
-    let msgArrToSend = [],
-    msgHashArray=[];
-
     const  observerCallback = function(mutationsList, observer) {
         mutationsList.forEach((mutation)=>{
             try{
@@ -182,9 +179,17 @@ if (window.location.host == "web.whatsapp.com") {
                         console.warn('connected');
                         const preLoadedMessages = document.querySelectorAll('#main div[role=region]>div');//получаю все предзагруженные сообщения 
                         //(там еще 1 для подзагрузки, самое первое)
-                        //далее для последнего если оно от пользователя проставляю data- артрибут, если были сообщения на странице, то ставлю -1, 
-                        //если не было и пришло при нас, то 0 и от него начинаю считать
-                        // console.log(mutation.addedNodes[0].attributes.id);//врубать дополнительно обсервер для толькол мейна
+                        const msg_block = preLoadedMessages[preLoadedMessages.length-1];
+
+                        const msg_block_data_id = msg_block.dataset.id;
+                        chrome.storage.sync.set({'LastDialogMessageDataID':msg_block_data_id},()=>{
+                        	console.log('SET TO ',msg_block_data_id)
+                        })
+
+                        //тут сразу добавляю предзагруженное сообщение тюк в не хочу его пихать, это расширение а не бот
+                        //это будет служить флагом что не стоит считать его за новое сообщение при подгрузке всего списка сообщений
+                        //только после врубаю второй обсервер для получения уже новых (полученных при открытом диалоге)сообщений
+                        
                         dialogObserver.observe(document.getElementById('main'),config);
                     }
                     
@@ -207,73 +212,39 @@ if (window.location.host == "web.whatsapp.com") {
         mutationsList.forEach((mutation)=>{
             try{
                 if (mutation.addedNodes[0].className.includes('message-out')||mutation.addedNodes[0].className.includes('message-in')) {
-                    const msgList = document.querySelectorAll('#main div[role=region]>div');
-                    // console.log(msgList);
+                   
+                    const preLoadedMessages = document.querySelectorAll('#main div[role=region]>div');
+                    //получаю все предзагруженные сообщения //уже не поню зачем но вроде для того чтоб игнорировать обновления предзагруженного мсг
 
+                    const msg_block = preLoadedMessages[preLoadedMessages.length-1];
+                    if (msg_block.className.includes('message-out')||msg_block.className.includes('message-in')) {
+                    	const msg_block_message = msg_block.innerText;
+                    	const msg_block_data_id = msg_block.dataset.id;
+                    	const msg_block_number = msg_block_data_id.slice(0,4).includes('true') ? msg_block_data_id.slice(5,5+11) : msg_block_data_id.slice(6,6+11);
 
-
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //
-                    //                  ПОМЕНЯЛ, РАЗОБРАТЬСЯ
-                    //
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-                     const preLoadedMessages = document.querySelectorAll('#main div[role=region]>div');//получаю все предзагруженные сообщения 
-
-                        const msg_block = preLoadedMessages[preLoadedMessages.length-1];
-                        const msg_block_data_id = msg_block.dataset.id;
-                        if (msg_block.className.includes('message-out')||msg_block.className.includes('message-in')) {
-
-
-                            let pre_loaded_data_id= async()=>{
-                                await chrome.storage.sync.get(['LastDialogMessageDataID'] , async function(result) {
-                                    // console.log('Value is set to ' + pre_loaded_data_id);
-                                    if (result.key.includes(msg_block_data_id)) {
-                                        return false
-                                    } else{
-                                        await chrome.storage.sync.set({'LastDialogMessageDataID':msg_block_data_id})
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //
-                    //                  ПОМЕНЯЛ, РАЗОБРАТЬСЯ
-                    //
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                            .then(()=>true)
-                                    }
-                                })
-                            } 
-
-
-                            if (pre_loaded_data_id) {
-                                console.log('yse!! :',msg_block_data_id)
-                            // }else {
-                                // console.log('n!!ot!! :',msg_block_data_id)
-                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                    //
-                                    //                  ПОМЕНЯЛ, РАЗОБРАТЬСЯ
-                                    //
-                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            }
-
-                            // console.log(preLoadedMessages[preLoadedMessages.length-1].dataset.id);
+                        function pre_loaded_data_id (){
+                           	chrome.storage.sync.get(['LastDialogMessageDataID'] , function(result) {
+                                // console.log('Value is set to ' + pre_loaded_data_id);
+                                if (result.LastDialogMessageDataID.includes(msg_block_data_id)) {
+                                   	console.log('include')
+                                   	//если есть запись о прошлом сообщении то игнорим его в дальнейшем
+                                } else {
+                       				const is_customer = msg_block.className.includes('message-in');
+                                    chrome.storage.sync.set({'LastDialogMessageDataID':msg_block_data_id},()=>{
+                       					console.log('Yet NICE COMMET AWESOME ',msg_block_data_id)
+                                       	chrome.runtime.sendMessage({customer:is_customer,content_whatsapp_casual_message:msg_block_message,customer_number:msg_block_number})
+                       				})
+                                    //новое сообщение, записываем, чтоб больше новым не было
+                                }
+                            })
                         }
+                        pre_loaded_data_id()
+
+                    }
 
                 }
             }catch(e){
                 // console.log(e);
-                // return 0;
             }
 
         });
