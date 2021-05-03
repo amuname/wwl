@@ -19,38 +19,89 @@ xhrFil =new XMLHttpRequest;
 let newMailingRequest;
 
 function handleMessage(request, sender, sendResponse) {
+
+
+	console.log(request);
 	console.log(request.mailing);
 	console.log(sender);
-	if (true) {
-		if (sender.origin =='https://app.syncrm.ru') {
-			console.log(sender.tab.id)
-			newMailingRequest = request.numbs;
-			console.log(newMailingRequest);
-			if (request.mailing) {
-				chrome.tabs.query({url:['*://app.syncrm.ru/*']},function(e){// отправляю каждой вкладке что рассылка начата
-		    		console.log(e);
-		    		e.forEach((tab)=>{
-		        		console.log(tab.id);
-		        		chrome.tabs.sendMessage(tab.id,{'mailing':true});
-		    		});
-				});
-			}
-			sendResponse({a:true});
+	if (sender.origin =='https://app.syncrm.ru') {
+		console.log(sender.tab.id)
+		newMailingRequest = request.numbs;
+		console.log(newMailingRequest);
+		if (request.mailing) {
+			chrome.tabs.query({url:['*://app.syncrm.ru/*']},function(e){// отправляю каждой вкладке что рассылка начата
+		   		console.log(e);
+		   		e.forEach((tab)=>{
+		       		console.log(tab.id);
+		       		chrome.tabs.sendMessage(tab.id,{'mailing':true});
+		   		});
+			});
 		}
-		if (sender.origin =='https://web.whatsapp.com') {
-			if (request.mailing) {
-			}
-			if (!request.mailing) {
-				chrome.tabs.query({url:['*://app.syncrm.ru/*']},function(e){// отправляю каждой вкладке что рассылка закончена
-		    		console.log(e);
-		    		e.forEach((tab)=>{
-		        		console.log(tab.id);
-		        		chrome.tabs.sendMessage(tab.id,{'mailing':false});
-		    		});
-				});
-			}
+		sendResponse({a:true});
+	}
+	if (sender.origin =='https://web.whatsapp.com') {
+		if (request.mailing) {
+		}
+		if (!request.mailing&&!request.customer&&!request.content_whatsapp_casual_message) {
+			chrome.tabs.query({url:['*://app.syncrm.ru/*']},function(e){// отправляю каждой вкладке что рассылка закончена
+	    		console.log(e);
+	    		e.forEach((tab)=>{
+	        		console.log(tab.id);
+	        		chrome.tabs.sendMessage(tab.id,{'mailing':false});
+	    		});
+			});
+		}
+		if (request.customer&&request.content_whatsapp_casual_message.length>=4&&request.customer_number.length>=11){//передай customer_number
+			send_message_2_CRM('Клинет',request.content_whatsapp_casual_message,request.customer_number)
+		}
+		else if (!request.customer&&request.content_whatsapp_casual_message.length>=4&&request.customer_number.length>=11){
+			send_message_2_CRM('Оператор',request.content_whatsapp_casual_message,request.customer_number)	
 		}
 	}
+
+
+	async function send_message_2_CRM(sender,message,phone_number) {debugger
+		if (!CrmAPI) {
+			chrome.storage.sync.get(["APl"], function(result) {
+          	console.log('Value currently is ' + result.APl);
+          	CrmAPI = result.APl;
+        	});
+		}
+		const url = 'https://app.syncrm.ru/api/v1/contacts',
+		headers = {
+	    	'Content-Type': 'application/vnd.api+json',
+	    	'Authorization': `Bearer ${CrmAPI}`
+	    };
+	    console.log(headers);
+		async function get_filter(){
+			const filter = `?filter%5Bany_phone%5D=%2B${phone_number}`,
+			options_filter = {
+				method: 'GET',
+				headers: headers,
+			},
+			filter_phone = await fetch(url+filter,options_filter);
+			console.log(filter_phone);
+			// id = await filter_phone.json().data.id	hz chto dalshe, nado zapuskat
+			// send_message()
+		}
+		async function send_message(data){
+			const options_message = {
+			method: 'POST',
+			headers: headers,
+			body:JSON.stringify(data) 
+			}
+		}
+		get_filter()
+	}
+
+
+
+// options_message = {
+// 			method: 'POST',
+// 			headers: headers,
+// 			body:JSON.stringify(data) 
+// 		},
+
 // 	if (lengthmsg=="") {
 // 		lengthmsg = request;
 // 		console.log(lengthmsg);
@@ -157,15 +208,14 @@ function handleMessage(request, sender, sendResponse) {
 
 // 		}
 
-}
-
-
-chrome.storage.sync.get(["APl"], function(result) {
+}	
+// chrome.storage.sync.set({'API':'5fa630c6ffb801b9138c5e2573cd3e64ae435a2f3afb5c821c166ecdfa368bbb'})
+	chrome.storage.sync.get(["APl"], function(result) {
           //console.log('Value currently is ' + result.APl);
           CrmAPI = result.APl;
         });
 
-chrome.storage.sync.get(["ContactID"], function(result) {
+	chrome.storage.sync.get(["ContactID"], function(result) {
           //console.log('Value currently is ' + result.ContactID);
           idForPost = result.ContactID;
         });
