@@ -52,10 +52,10 @@ function handleMessage(request, sender, sendResponse) {
 			});
 		}
 		if (request.customer&&request.content_whatsapp_casual_message.length>=4&&request.customer_number.length>=11){//передай customer_number
-			send_message_2_CRM('Клинет',request.content_whatsapp_casual_message,request.customer_number)
+			send_message_2_CRM('Клинет :',request.content_whatsapp_casual_message,request.customer_number)
 		}
 		else if (!request.customer&&request.content_whatsapp_casual_message.length>=4&&request.customer_number.length>=11){
-			send_message_2_CRM('Оператор',request.content_whatsapp_casual_message,request.customer_number)	
+			send_message_2_CRM('Оператор :',request.content_whatsapp_casual_message,request.customer_number)	
 		}
 	}
 
@@ -80,16 +80,40 @@ function handleMessage(request, sender, sendResponse) {
 				headers: headers,
 			},
 			filter_phone = await fetch(url+filter,options_filter);
-			console.log(filter_phone);
+			filter_result = await filter_phone.json();
+			console.log(filter_result.data);
 			// id = await filter_phone.json().data.id	hz chto dalshe, nado zapuskat
-			// send_message()
+			// send_message() 
+			filter_result.data.forEach(e=>send_message(e.id,message,sender))
 		}
-		async function send_message(data){
+		async function send_message(id,msg){
+			//!!!!!!!!!!!!!!!!!!!
+
+			//переписать дату под уведомления(активити)
+
+			//!!!!!!!!!!!!!!!!!!!
+			let data = {
+				data:{
+         			'type':'contacts',
+         			'id':id,
+         			'attributes':{
+           				'description':msg,
+         			}
+				}
+			};
+			//!!!!!!!!!!!!!!!!!!!
+
+			//переписать дату под уведомления(активити)
+
+			//!!!!!!!!!!!!!!!!!!!
 			const options_message = {
-			method: 'POST',
+			method: 'PATCH',
 			headers: headers,
 			body:JSON.stringify(data) 
 			}
+			const response = await fetch(url+'/'+id,options_message)
+			const r_r = await response.json();
+			console.log(r_r);
 		}
 		get_filter()
 	}
