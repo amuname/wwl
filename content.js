@@ -76,7 +76,7 @@ if (window.location.host == "app.syncrm.ru"){
                 return false;                            
             }
         }); 
-        console.log(arrNumbs);
+        // console.log(arrNumbs);
         contentMessage(arrNumbs)// тут поставить в функцию eventListener котороая будет вызывать отключение eventListener 
     };
     const removeListener = ()=>{
@@ -148,9 +148,9 @@ if (window.location.host == "app.syncrm.ru"){
     const observer = new MutationObserver(observerCallback);
     observer.observe(target,config);
     chrome.runtime.onMessage.addListener((e,sender,callback)=>{
-             console.log(e);
+             // console.log(e);
         if (!e.mailing) {
-            console.log('obj');
+            // console.log('obj');
             onMessageCallback();
         } else {
             removeListener();
@@ -158,13 +158,6 @@ if (window.location.host == "app.syncrm.ru"){
     });
 
 } 
-
-
-
-
-
-
-
 
 if (window.location.host == "web.whatsapp.com") {
 
@@ -176,14 +169,14 @@ if (window.location.host == "web.whatsapp.com") {
                 if (mutation.addedNodes.length>0) {
                     // console.log('mutation');
                     if (mutation.addedNodes[0].getAttribute('id')=='main') {
-                        console.warn('connected');
+                        // console.warn('connected');
                         const preLoadedMessages = document.querySelectorAll('#main div[role=region]>div');//получаю все предзагруженные сообщения 
                         //(там еще 1 для подзагрузки, самое первое)
                         const msg_block = preLoadedMessages[preLoadedMessages.length-1];
 
                         const msg_block_data_id = msg_block.dataset.id;
                         chrome.storage.sync.set({'LastDialogMessageDataID':msg_block_data_id},()=>{
-                        	console.log('SET TO ',msg_block_data_id)
+                        	// console.log('SET TO ',msg_block_data_id)
                         })
 
                         //тут сразу добавляю предзагруженное сообщение тюк в не хочу его пихать, это расширение а не бот
@@ -226,12 +219,12 @@ if (window.location.host == "web.whatsapp.com") {
                            	chrome.storage.sync.get(['LastDialogMessageDataID'] , function(result) {
                                 // console.log('Value is set to ' + pre_loaded_data_id);
                                 if (result.LastDialogMessageDataID.includes(msg_block_data_id)) {
-                                   	console.log('include')
+                                   	// console.log('include')
                                    	//если есть запись о прошлом сообщении то игнорим его в дальнейшем
                                 } else {
                        				const is_customer = msg_block.className.includes('message-in');
                                     chrome.storage.sync.set({'LastDialogMessageDataID':msg_block_data_id},()=>{
-                       					console.log('Yet NICE COMMET AWESOME ',msg_block_data_id)
+                       					// console.log('Yet NICE COMMET AWESOME ',msg_block_data_id)
                                        	chrome.runtime.sendMessage({customer:is_customer,content_whatsapp_casual_message:msg_block_message,customer_number:msg_block_number})
                        				})
                                     //новое сообщение, записываем, чтоб больше новым не было
